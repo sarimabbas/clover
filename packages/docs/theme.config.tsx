@@ -15,7 +15,10 @@ const config: DocsThemeConfig = {
         property="og:description"
         content="Server routes augmented with Zod and OpenAPI"
       />
-      <meta property="og:image" content="https://clover.vercel.app/cover.png" />
+      <meta
+        property="og:image"
+        content="https://clover.sarim.garden/cover.png"
+      />
     </>
   ),
   footer: {
