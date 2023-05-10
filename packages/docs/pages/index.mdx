@@ -70,6 +70,8 @@ Here's what a handler augmented with Clover looks like:
 ```ts
 // app/hello/route.ts
 
+import { z } from "zod";
+
 export const { handler } = makeRequestHandler({
   method: "GET",
   path: "/hello",
