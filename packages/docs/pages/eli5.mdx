@@ -1,0 +1,104 @@
+# Explain like I'm five
+
+## Motivation
+
+### How modern web frameworks handle "backend"
+
+Traditionally, frameworks like Next.js have let you write server code inside page lifecycle hooks like `getServerSideProps`, where data could be plumbed through once on page-load. Or you could write server code inside dedicated API routes, and the client would have to fetch data from the API route. The separation between client and server was clearer, even though it is a hassle to pass data back and forth in a type-safe and ergonomic way.
+
+```ts
+// server code in the express style
+// e.g. https://nextjs.org/docs/pages/building-your-application/routing/api-routes
+const handler = (req, res) => {
+  return res.json({});
+};
+
+// OR in the winterCG style
+// e.g. https://nextjs.org/docs/app/building-your-application/routing/router-handlers
+const handler = (request: Request) => {
+  return new Response();
+};
+
+// OR in dedicated lifecycle hooks
+// e.g. https://nextjs.org/docs/pages/building-your-application/data-fetching/get-server-side-props
+export const getServerSideProps = () => {
+  return {
+    props: {},
+  };
+};
+
+// OR inside loaders
+// e.g. https://remix.run/docs/en/main/route/loader
+export const loader = async () => {
+  return json({ ok: true });
+};
+```
+
+Requesting data from the client is typically done with `fetch` or `axios` or some other HTTP client. There is no type-safety between the client and server. You have to manually specify the types.
+
+```tsx
+const MyComponent = () => {
+  const [data, setData] = useState();
+
+  const requestData = async () => {
+    const response = await fetch("/api/my-data");
+    const data = await response.json();
+    setData(data);
+  };
+
+  useEffect(() => {
+    requestData();
+  }, []);
+};
+```
+
+### Third-party libraries
+
+Libraries like TRPC, Zodios etc. have improved the developer experience a lot. They all follow a similar pattern where they wrap over the backend API route, and provide a client for the frontend to consume. The client is inferred from the server code, so the client and server are always in sync. The client is type-safe, so you can't make typos in the API calls. But these frameworks can sometimes involve a decent amount of boilerplate (although far less that what you would have to do yourself to get the same level of functionality).
+
+Here is a video from TRPC that illustrates this concept:
+
+<video autoplay muted>
+  <source
+    src="https://assets.trpc.io/www/v10/v10-dark-landscape.mp4"
+    type="video/mp4"
+  />
+</video>
+
+And here is Zodios:
+
+<video autoplay muted>
+  <source src="https://www.zodios.org/video/zodios.mp4" type="video/mp4" />
+</video>
+
+Clover also does something similar, although it is on a per-route basis. We'll discuss how Clover works in a bit.
+
+#### Side note on type-safety
+
+Just having TypeScript types doesn't gurarantee type-safety over the wire during runtime. What if there was a cosmic bitflip when the data was enroute from the server to the client? To gurarantee type-safety, it's generally a good idea to use a schema validation library like Zod, which is what you see with all the `z.object` stuff in the video screenshots above. You can learn more about Zod at https://github.com/colinhacks/zod.
+
+```ts
+// an example from Zod's documentation
+
+import { z } from "zod";
+
+// the schema
+const User = z.object({
+  username: z.string(),
+});
+
+// the type guarantee
+type User = z.infer<typeof User>;
+// { username: string }
+
+// the runtime guarantee
+User.parse({ username: "Ludwig" });
+```
+
+### Blurring client-server boundaries
+
+Frameworks are adding their own blurring of the client-server boundary. Remix and Next.js both offer ways to colocate server code with client code and disambiguate them with special named exports or special directives e.g. `use-server`. Each piece of server logic is either spun up on a transient Lambda function, or a long-running server process. There is a lot of magic behind the scenes.
+
+### Why Clover
+
+As frameworks like Next.js introduce their own first-party functionality to fetch and mutate data, I expect that the use-case for external libraries like TRPC, Zodios etc. will be diminished in the coming years. But occasionally there is still a need for exposing some data from your server via a well-documented public API. There isn't much support for this in the modern frameworks. So, Clover is a small library that aims to fill that gap.

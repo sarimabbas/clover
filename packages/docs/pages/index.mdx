@@ -65,11 +65,13 @@ const handler = (request: Request) => {
 export { handler as GET };
 ```
 
+### Server
+
 Here's what a handler augmented with Clover looks like:
 
 ```ts
 // app/hello/route.ts
-
+import { makeRequestHandler } from "@sarim.garden/clover";
 import { z } from "zod";
 
 export const { handler } = makeRequestHandler({
@@ -92,6 +94,78 @@ export const { handler } = makeRequestHandler({
 export { handler as GET };
 ```
 
+You can learn more about how to add authentication, about Clover's heuristics for query parameters, path parameters, request bodies etc. by reading the server guide in the sidebar 👈
+
+### Client
+
+Clover also provides an optional client fetcher. It's nothing fancy, it just wraps the Fetch API and provides type safety.
+
+```ts
+// app/hello/route.ts
+
+export const { handler, clientTypes } = makeRequestHandler({
+  // ...same as above
+});
+
+// client.ts
+
+import { makeFetcher } from "@sarim.garden/clover";
+
+const fetcher = makeFetcher({
+  baseUrl: "https://example.com",
+});
+
+const { greeting } = await fetcher<typeof clientTypes>({
+  input: {
+    name: "Sarim",
+  },
+});
+```
+
+You can use the fetcher inside pure backend (server-to-server), backend-for-frontend (e.g. React Server Components), and frontend contexts (e.g. TanStack Query). You can read more about how the fetcher works in the sidebar 👈
+
+### OpenAPI
+
+You can generate OpenAPI documentation from your server routes.
+
+```ts
+// app/hello/route.ts
+
+export const { handler, openAPIPathsObject } = makeRequestHandler({
+  // ...same as above
+});
+
+// openapi.ts
+import { OpenAPIObject, OpenAPIPathsObject } from "@sarim.garden/clover";
+import { openAPIPathsObject } from "../hello/route";
+
+// it's ugly, I know, but this nicely combines
+// multiple openAPI definitions from different route handlers :)
+const pathsObject: OpenAPIPathsObject = [
+  openAPIPathsObject,
+  // ...add others here
+].reduce((acc, curr) => {
+  Object.keys(curr).forEach((k) => {
+    acc[k] = {
+      ...acc[k],
+      ...curr[k],
+    };
+  });
+  return acc;
+}, {});
+
+export const document: OpenAPIObject = {
+  info: {
+    title: "My API",
+    version: "1.0.0",
+  },
+  openapi: "3.0.0",
+  paths: pathsObject,
+};
+```
+
+You can now serve this JSON document, and use it with Swagger UI or similar tools. You can learn more about how to do that by reading the full OpenAPI guide in the sidebar 👈
+
 ## Credits
 
 ### Similar projects
@@ -106,3 +180,8 @@ export { handler as GET };
 
 - Zod: https://github.com/colinhacks/zod/
 - @anatine/zod-openapi: https://github.com/anatine/zod-plugins
+- OpenApi3-TS: https://github.com/metadevpro/openapi3-ts
+
+## Explain like I'm five
+
+Lately, I’ve been contemplating the inaccessibility of modern frontend development and striving to enhance my projects’ documentation by including an ELI5 section. My aim is to provide detailed explanations while being respectful of your time and avoiding condescension. You can read more in the sidebar 👈
