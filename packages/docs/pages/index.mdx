@@ -1,0 +1,66 @@
+import { Callout } from "nextra-theme-docs";
+import { Tab, Tabs } from "nextra-theme-docs";
+
+# Clover ☘️
+
+Server routes augmented with Zod and OpenAPI
+
+<br />
+
+<img
+  src="/cover.png"
+  style={{
+    width: 400,
+    height: 400,
+    borderRadius: 10,
+  }}
+/>
+
+> Cover from Midjourney
+
+<Callout type="warning" emoji="⚠️">
+  If you find inaccuracies or anything missing, please open an issue on GitHub!
+</Callout>
+
+## Installation
+
+<Tabs items={["pnpm", "npm", "yarn"]}>
+  <Tab>
+
+```bash
+pnpm i @sarim.garden/clover
+```
+
+  </Tab>
+  <Tab>
+
+```bash
+npm i @sarim.garden/clover
+```
+
+  </Tab>
+  <Tab>
+
+```bash
+yarn add @sarim.garden/clover
+```
+
+  </Tab>
+</Tabs>
+## What is Clover?
+
+Clover is a library that allows you to define your server routes using Zod and OpenAPI.
+
+You can use Clover with any framework/runtime that supports WinterCG style functions e.g.
+
+```ts
+const handler = (request: Request) => {
+  return new Response("Hello World!");
+};
+```
+
+Here's what a handler augmented with Clover looks like:
+
+```ts
+
+```
