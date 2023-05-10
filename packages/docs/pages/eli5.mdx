@@ -75,7 +75,7 @@ Clover also does something similar, although it is on a per-route basis. We'll d
 
 #### Side note on type-safety
 
-Just having TypeScript types doesn't gurarantee type-safety over the wire during runtime. What if there was a cosmic bitflip when the data was enroute from the server to the client? To gurarantee type-safety, it's generally a good idea to use a schema validation library like Zod, which is what you see with all the `z.object` stuff in the video screenshots above. You can learn more about Zod at https://github.com/colinhacks/zod.
+Just having TypeScript types doesn't gurarantee type-safety over the wire during runtime. What if there was a cosmic bitflip ☀️💀 when the data was enroute from the server to the client? To gurarantee type-safety, it's generally a good idea to use a schema validation library like Zod, which is what you see with all the `z.object` stuff in the video screenshots above. You can learn more about Zod at https://github.com/colinhacks/zod.
 
 ```ts
 // an example from Zod's documentation
@@ -97,7 +97,7 @@ User.parse({ username: "Ludwig" });
 
 ### Blurring client-server boundaries
 
-Frameworks are adding their own blurring of the client-server boundary. Remix and Next.js both offer ways to colocate server code with client code and disambiguate them with special named exports or special directives e.g. `use-server`. Each piece of server logic is either spun up on a transient Lambda function, or a long-running server process. There is a lot of magic behind the scenes.
+Frameworks are adding their own blurring of the client-server boundary. Remix and Next.js both offer ways to colocate server code with client code and disambiguate them with special named exports or special directives e.g. `use-server`. Each piece of server logic is either spun up on a transient Lambda function, or a long-running server process. The client can just directly import and call the server function, and an RPC (remote procedure call) is coordinated in the background 🙀 There is a lot of magic behind the scenes.
 
 ### Why Clover
 
