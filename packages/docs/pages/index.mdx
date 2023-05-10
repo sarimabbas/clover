@@ -47,20 +47,45 @@ yarn add @sarim.garden/clover
 
   </Tab>
 </Tabs>
+
 ## What is Clover?
 
 Clover is a library that allows you to define your server routes using Zod and OpenAPI.
 
-You can use Clover with any framework/runtime that supports WinterCG style functions e.g.
+You can use Clover with any framework/runtime that supports WinterCG style functions e.g. here's an example with Next.js App Router:
 
 ```ts
+// example Next.js route handler
+// app/hello/route.ts
+
 const handler = (request: Request) => {
   return new Response("Hello World!");
 };
+
+export { handler as GET };
 ```
 
 Here's what a handler augmented with Clover looks like:
 
 ```ts
+// app/hello/route.ts
 
+export const { handler } = makeRequestHandler({
+  method: "GET",
+  path: "/hello",
+  description: "Returns a greeting",
+  input: z.object({
+    name: z.string(),
+  }),
+  output: z.object({
+    greeting: z.string(),
+  }),
+  run: async ({ input, sendOutput }) => {
+    return sendOutput({
+      greeting: `Hello ${input.name}!`,
+    });
+  },
+});
+
+export { handler as GET };
 ```
