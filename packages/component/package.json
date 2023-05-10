@@ -1,0 +1,42 @@
+{
+  "name": "@sarim.garden/clover",
+  "version": "1.0.0",
+  "description": "Server routes enhanced with Zod and OpenAPI schemas",
+  "type": "module",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*"
+      ]
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup --config ./tsup.config.ts",
+    "dev": "pnpm run build --watch",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anatine/zod-openapi": "^1.12.1",
+    "lodash.merge": "^4.6.2",
+    "path-to-regexp": "^6.2.1",
+    "zod": "^3.21.4",
+    "openapi3-ts": "^4.1.2"
+  },
+  "devDependencies": {
+    "@types/lodash.merge": "^4.6.7",
+    "eslint": "^8.40.0",
+    "eslint-config-custom": "workspace:*",
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.4"
+  }
+}
