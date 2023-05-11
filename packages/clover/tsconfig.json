@@ -2,6 +2,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "target": "es2016",
+    "lib": ["es2019", "dom", "DOM.Iterable"],
     "module": "commonjs",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
