@@ -1,18 +1,14 @@
 # Explain like I'm five
 
-I'll try to assume very little knowledge!
+Lately, I’ve been contemplating the inaccessibility of modern frontend development and striving to enhance my projects’ documentation by including an ELI5 section. My aim is to provide detailed explanations while being respectful of your time and avoiding condescension. I'll try to assume very little knowledge! If you already know this stuff, feel free to skip this section. If this is helpful, please let me know!
 
-### OpenAPIs
+## OpenAPIs
 
-First, let's talk about APIs. APIs help machines/servers communicate.
-
-![](/eli5/0_apis.png)
-
-The most common API conventions are REST or GraphQL. They both work over HTTP. GraphQL is nice because it is a strongly typed schema with its own query language. Meanwhile REST does not enforce any schema conventions.
+First, let's talk about APIs. APIs help machines/servers communicate. The most common API conventions are REST or GraphQL. They both work over HTTP. GraphQL is nice because it is a strongly typed schema with its own query language. Meanwhile REST does not enforce any schema conventions.
 
 If you want to add schema validation to your REST API, you can make it OpenAPI compliant. OpenAPI is a specification for describing REST APIs. It is a JSON schema that describes the structure of your API. An OpenAPI schema can help other humans and machines understand how your API works. They can generate client code against your API, or generate test cases, or configure infrastructure, etc.
 
-For example, [OpenAI's ChatGPT plugin system](https://platform.openai.com/docs/plugins/introduction) relies on OpenAPIs. A "ChatGPT plugin" is just a pointer to an OpenAPI specification. Then ChatGPT will figure out how to use it from that specification alone 🙀
+For example, OpenAI's [ChatGPT plugin system](https://platform.openai.com/docs/plugins/introduction) relies on OpenAPIs. A "ChatGPT plugin" is just a pointer to an OpenAPI specification. Then ChatGPT will figure out how to use it from that specification alone 🙀. (Side note: it's unfortunate how similar both the words "OpenAI" and "OpenAPI" are 😅)
 
 ![](/eli5/1_openapi.png)
 
@@ -32,7 +28,9 @@ const handler = (request: Request) => {
     headers: { "content-type": "application/json" },
   });
 };
+```
 
+```ts
 // how you would query against it in your code
 
 const response = await fetch(
@@ -45,7 +43,7 @@ const data: {
 
 This feels a bit brittle. You have to make sure you are passing the right query params, and that the response is what you expect. If you make a typo, you won't know until runtime.
 
-Here is an example of querying against an API which is OpenAPI compliant.
+Here is an example of querying against an API which is OpenAPI compliant:
 
 ```json
 // https://petstore3.swagger.io/api/v3/openapi.json
@@ -111,10 +109,10 @@ Here is an example of querying against an API which is OpenAPI compliant.
 We can generate a type-safe client against it using a library like [Orval](https://orval.dev/overview) or [oazapfts](https://github.com/oazapfts/oazapfts). These libraries wrap `fetch`/`axios` and do the input/output parsing in the native typesystem of the language, e.g. TypeScript, Go, Rust etc. Some pseudocode:
 
 ```bash
-codegen --input https://example.com/openapi-spec.json --output ./src/client.ts
+codegen --input https://petstore3.swagger.io/api/v3/openapi.json --output ./src/client.ts
 ```
 
-And now we can use the client in our code. Notice how it is type-safe, and we don't have to worry about typos, nor about how to prepare the underlying `fetch` call.
+And now we can use the client in our code. Notice how it is type-safe, and we neither have to worry about typos, nor about how to prepare the underlying `fetch` call.
 
 ```ts
 import { findPetsByStatus } from "./src/client";
@@ -124,6 +122,49 @@ const response = await findPetsByStatus({
   status: ["available", "pending"],
 });
 ```
+
+### Building an OpenAPI compliant API
+
+In the above section, I showed an OpenAPI spec, but didn't show how the server code was implemented. It's nothing fancy, you as the implementer just have to make sure you follow the contract:
+
+```ts
+// this handler should be reachable on /api/v3/pet/findByStatus
+const handler = (request: Request) => {
+  const status = new URL(request.url).searchParams.getAll("status");
+  const pets = db.getPets({
+    filter: {
+      status: status,
+    },
+  });
+  return new Response(JSON.stringify(pets), {
+    headers: { "content-type": "application/json" },
+  });
+};
+```
+
+This also feels a bit brittle. If we make a typo, or return the wrong data, we won't know until runtime that we're not respecting the spec. If we make changes to the spec, we have to make sure we update the handler to match (and vice versa).
+
+### Automated OpenAPI generation
+
+Instead of a schema-first approach, what if we could just write our server code first? And then generate the OpenAPI spec from the server code? This would be a huge time-saver. We wouldn't have to write the OpenAPI spec by hand, and we wouldn't have to worry about keeping the spec and the server code in sync. With the spec, we can generate a client, and use that anywhere. The types "flow" across the stack.
+
+Here is an [example from `tsoa`](https://tsoa-community.github.io/docs/getting-started.html), a popular server framework for this purpose:
+
+```ts
+import { Controller, Get, Query } from "tsoa";
+import { Pet } from "../models/Pet";
+
+@Route("pet")
+export class PetController extends Controller {
+  @Get("findByStatus")
+  public async findByStatus(@Query() status?: string): Promise<Pet[]> {
+    // Your implementation here
+    return [];
+  }
+}
+```
+
+`tsoa` will look at those decorators and generate an OpenAPI spec for you.
 
 ## Motivation
 
