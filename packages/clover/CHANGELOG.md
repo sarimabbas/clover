@@ -1,5 +1,11 @@
 # @sarim.garden/clover
 
+## 2.0.1
+
+### Patch Changes
+
+- 5d52e2a: Add more documentation
+
 ## 2.0.0
 
 ### Major Changes

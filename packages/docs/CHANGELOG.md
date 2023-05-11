@@ -1,5 +1,11 @@
 # @sarim.garden/clover-docs
 
+## 1.2.0
+
+### Minor Changes
+
+- 5d52e2a: Add more documentation
+
 ## 1.1.0
 
 ### Minor Changes
