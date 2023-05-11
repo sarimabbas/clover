@@ -1,5 +1,130 @@
 # Explain like I'm five
 
+I'll try to assume very little knowledge!
+
+### OpenAPIs
+
+First, let's talk about APIs. APIs help machines/servers communicate.
+
+![](/eli5/0_apis.png)
+
+The most common API conventions are REST or GraphQL. They both work over HTTP. GraphQL is nice because it is a strongly typed schema with its own query language. Meanwhile REST does not enforce any schema conventions.
+
+If you want to add schema validation to your REST API, you can make it OpenAPI compliant. OpenAPI is a specification for describing REST APIs. It is a JSON schema that describes the structure of your API. An OpenAPI schema can help other humans and machines understand how your API works. They can generate client code against your API, or generate test cases, or configure infrastructure, etc.
+
+For example, [OpenAI's ChatGPT plugin system](https://platform.openai.com/docs/plugins/introduction) relies on OpenAPIs. A "ChatGPT plugin" is just a pointer to an OpenAPI specification. Then ChatGPT will figure out how to use it from that specification alone 🙀
+
+![](/eli5/1_openapi.png)
+
+### Client generation
+
+If an API is OpenAPI compliant, you can generate client-code against it. This is a huge time-saver. You don't have to manually write the HTTP requests and responses. You can just import the client and call the functions. The client is type-safe, so you can't make typos in the API calls.
+
+Here is an example of querying against an API which isn't OpenAPI compliant.
+
+```ts
+// someone else's API endpoint, available on
+// https://example.com/api
+
+const handler = (request: Request) => {
+  const name = new URL(request.url).searchParams.get("name");
+  return new Response(JSON.stringify({ greeting: `Hello, ${name}!` }), {
+    headers: { "content-type": "application/json" },
+  });
+};
+
+// how you would query against it in your code
+
+const response = await fetch(
+  `https://example.com/api?name=${encodeURIComponent("Hedwig")}`
+);
+const data: {
+  greeting: string;
+} = await response.json();
+```
+
+This feels a bit brittle. You have to make sure you are passing the right query params, and that the response is what you expect. If you make a typo, you won't know until runtime.
+
+Here is an example of querying against an API which is OpenAPI compliant.
+
+```json
+// https://petstore3.swagger.io/api/v3/openapi.json
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Petstore - OpenAPI 3.0",
+    "description": "This is a sample Pet Store Server based on the OpenAPI 3.0 specification.",
+    "version": "1.0.17"
+  },
+  "servers": [
+    {
+      "url": "/api/v3"
+    }
+  ],
+  "tags": [
+    {
+      "name": "pet",
+      "description": "Everything about your Pets"
+    }
+  ],
+  "paths": {
+    "/pet/findByStatus": {
+      "get": {
+        "tags": ["pet"],
+        "summary": "Finds Pets by status",
+        "description": "Multiple status values can be provided with comma separated strings",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status values that need to be considered for filter",
+            "required": false,
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "default": "available",
+              "enum": ["available", "pending", "sold"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+We can generate a type-safe client against it using a library like [Orval](https://orval.dev/overview) or [oazapfts](https://github.com/oazapfts/oazapfts). These libraries wrap `fetch`/`axios` and do the input/output parsing in the native typesystem of the language, e.g. TypeScript, Go, Rust etc. Some pseudocode:
+
+```bash
+codegen --input https://example.com/openapi-spec.json --output ./src/client.ts
+```
+
+And now we can use the client in our code. Notice how it is type-safe, and we don't have to worry about typos, nor about how to prepare the underlying `fetch` call.
+
+```ts
+import { findPetsByStatus } from "./src/client";
+
+// find pet by status
+const response = await findPetsByStatus({
+  status: ["available", "pending"],
+});
+```
+
 ## Motivation
 
 ### How modern web frameworks handle "backend"
