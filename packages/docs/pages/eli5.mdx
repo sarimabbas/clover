@@ -146,6 +146,8 @@ This also feels a bit brittle. If we make a typo, or return the wrong data, we w
 
 ### Automated OpenAPI generation
 
+![](/eli5/2_more_arrows.png)
+
 Instead of a schema-first approach, what if we could just write our server code first? And then generate the OpenAPI spec from the server code? This would be a huge time-saver. We wouldn't have to write the OpenAPI spec by hand, and we wouldn't have to worry about keeping the spec and the server code in sync. With the spec, we can generate a client, and use that anywhere. The types "flow" across the stack.
 
 Here is an [example from `tsoa`](https://tsoa-community.github.io/docs/getting-started.html), a popular server framework for this purpose:
@@ -165,6 +167,43 @@ export class PetController extends Controller {
 ```
 
 `tsoa` will look at those decorators and generate an OpenAPI spec for you.
+
+## Full stack frameworks
+
+The next piece of the puzzle is to see where OpenAPI compliant server code can live inside full stack frameworks. Some common frameworks include: Next.js, Remix, Nuxt, SolidStart, SvelteKit, Astro and many more. These frameworks blur the boundary between client and server (these days, even more so than when they first started). Here are some ways they blur the boundary:
+
+1. Nearly all of them let you write server code inside dedicated files. These are request/response handlers, and are usually written in the style of the underlying runtime (e.g. Node Express, or Edge). For example, in Next.js, you could write API routes like this:
+
+```ts
+// server code in the express style
+// pages/api/hello.ts
+// e.g. https://nextjs.org/docs/pages/building-your-application/routing/api-routes
+const handler = (req, res) => {
+  return res.json({});
+};
+
+// OR in the winterCG style
+// app/hello/route.ts
+// e.g. https://nextjs.org/docs/app/building-your-application/routing/router-handlers
+const handler = (request: Request) => {
+  return new Response();
+};
+```
+
+2. They let you run server code inside dedicated lifecycle hooks. For example, in Next.js, you could run server code inside `getServerSideProps`. The code runs each time the page is loaded, and the data is passed to the client. This is a bit different from the previous example, because the server code is not a request/response handler, but a data-fetching hook. You couldn't really use this to mutate data from the client. For example:
+
+```ts
+// e.g. https://nextjs.org/docs/pages/building-your-application/data-fetching/get-server-side-props
+export const getServerSideProps = () => {
+  return {
+    props: {},
+  };
+};
+```
+
+3. Other abstractions. Remix let's you have [specially named `loader` functions](https://remix.run/docs/en/main/route/loader) that fetch data. Next.js supports [React Server Components](https://nextjs.org/docs/app/building-your-application/rendering#rendering-environments) that can run top-level `async/await` network fetches on the server. There is some magic behind the scenes to make this work. My best guess is that the server bits are extracted by a compiler and used to spin up Lambdas/Edge functions. This blurring of the boundary has its pitfalls, you can see [this talk by Rich Harris](https://www.youtube.com/watch?v=uXCipjbcQfM&pp=ygULcmljaCBoYXJyaXM%3D) (creator of SvelteKit) to learn more.
+
+![](/eli5/3_full_stack.png)
 
 ## Motivation
 
