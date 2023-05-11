@@ -170,6 +170,8 @@ export class PetController extends Controller {
 
 ## Full stack frameworks
 
+### Types of server code
+
 The next piece of the puzzle is to see where OpenAPI compliant server code can live inside full stack frameworks. Some common frameworks include: Next.js, Remix, Nuxt, SolidStart, SvelteKit, Astro and many more. These frameworks blur the boundary between client and server (these days, even more so than when they first started). Here are some ways they blur the boundary:
 
 1. Nearly all of them let you write server code inside dedicated files. These are request/response handlers, and are usually written in the style of the underlying runtime (e.g. Node Express, or Edge). For example, in Next.js, you could write API routes like this:
@@ -205,63 +207,19 @@ export const getServerSideProps = () => {
 
 ![](/eli5/3_full_stack.png)
 
-## Motivation
+### Using Zodios or TRPC to write OpenAPI compliant routes
 
-### How modern web frameworks handle "backend"
+I would be remiss if I didn't mention [Zodios](https://www.zodios.org/docs/server/next). You can give it control of a wildcard route pattern in your framework, and write your server code using its primitives. It will then:
 
-Traditionally, frameworks like Next.js have let you write server code inside page lifecycle hooks like `getServerSideProps`, where data could be plumbed through once on page-load. Or you could write server code inside dedicated API routes, and the client would have to fetch data from the API route. The separation between client and server was clearer, even though it is a hassle to pass data back and forth in a type-safe and ergonomic way.
+1. Give you a typesafe client for your internal usecase with no generation step, by inferring the types from your server code
+2. Generate an OpenAPI spec from your server code
+3. Let others generate a typesafe client using the OpenAPI spec
 
-```ts
-// server code in the express style
-// e.g. https://nextjs.org/docs/pages/building-your-application/routing/api-routes
-const handler = (req, res) => {
-  return res.json({});
-};
+<video autoplay muted>
+  <source src="https://www.zodios.org/video/zodios.mp4" type="video/mp4" />
+</video>
 
-// OR in the winterCG style
-// e.g. https://nextjs.org/docs/app/building-your-application/routing/router-handlers
-const handler = (request: Request) => {
-  return new Response();
-};
-
-// OR in dedicated lifecycle hooks
-// e.g. https://nextjs.org/docs/pages/building-your-application/data-fetching/get-server-side-props
-export const getServerSideProps = () => {
-  return {
-    props: {},
-  };
-};
-
-// OR inside loaders
-// e.g. https://remix.run/docs/en/main/route/loader
-export const loader = async () => {
-  return json({ ok: true });
-};
-```
-
-Requesting data from the client is typically done with `fetch` or `axios` or some other HTTP client. There is no type-safety between the client and server. You have to manually specify the types.
-
-```tsx
-const MyComponent = () => {
-  const [data, setData] = useState();
-
-  const requestData = async () => {
-    const response = await fetch("/api/my-data");
-    const data = await response.json();
-    setData(data);
-  };
-
-  useEffect(() => {
-    requestData();
-  }, []);
-};
-```
-
-### Third-party libraries
-
-Libraries like TRPC, Zodios etc. have improved the developer experience a lot. They all follow a similar pattern where they wrap over the backend API route, and provide a client for the frontend to consume. The client is inferred from the server code, so the client and server are always in sync. The client is type-safe, so you can't make typos in the API calls. But these frameworks can sometimes involve a decent amount of boilerplate (although far less that what you would have to do yourself to get the same level of functionality).
-
-Here is a video from TRPC that illustrates this concept:
+Another popular library that does the above is [TRPC](https://github.com/trpc/trpc). It [provides an OpenAPI plugin](https://github.com/jlalmes/trpc-openapi) as well.
 
 <video autoplay muted>
   <source
@@ -270,17 +228,40 @@ Here is a video from TRPC that illustrates this concept:
   />
 </video>
 
-And here is Zodios:
+### Using Clover to write OpenAPI compliant routes
 
-<video autoplay muted>
-  <source src="https://www.zodios.org/video/zodios.mp4" type="video/mp4" />
-</video>
+Zodios and TRPC require you to embrace a large set of abstractions. Clover is more lightweight. Here is what an augmented server route might look like:
 
-Clover also does something similar, although it is on a per-route basis. We'll discuss how Clover works in a bit.
+```ts
+// app/api/pets/findByStatus/route.ts
+import { makeRequestHandler } from "@sarim.garden/clover";
+import { z } from "zod";
 
-#### Side note on type-safety
+export const { handler } = makeRequestHandler({
+  method: "GET",
+  path: "/api/pets/findByStatus",
+  description: "Finds Pets by status",
+  input: z.object({
+    status: z.enum(["available", "pending", "sold"]).array().optional(),
+  }),
+  output: z.object({
+    // ...pet schema fields
+  }),
+  run: async ({ input, sendOutput }) => {
+    return sendOutput({
+      // ...pet data
+    });
+  },
+});
 
-Just having TypeScript types doesn't gurarantee type-safety over the wire during runtime. What if there was a cosmic bitflip ☀️💀 when the data was enroute from the server to the client? To gurarantee type-safety, it's generally a good idea to use a schema validation library like Zod, which is what you see with all the `z.object` stuff in the video screenshots above. You can learn more about Zod at https://github.com/colinhacks/zod.
+export { handler as GET };
+```
+
+## Other concepts
+
+### Runtime typesafety with Zod
+
+Just having TypeScript types (either inferred from server code or generated from an OpenAPI spec) doesn't gurarantee type-safety over the wire during runtime. What if there was a cosmic bitflip ☀️💀 when the data was enroute from the server to the client? To gurarantee type-safety, it's generally a good idea to use a schema validation library like Zod, which is what you see with all the `z.object` stuff in the code examples above. You can learn more about Zod at https://github.com/colinhacks/zod.
 
 ```ts
 // an example from Zod's documentation
@@ -299,11 +280,3 @@ type User = z.infer<typeof User>;
 // the runtime guarantee
 User.parse({ username: "Ludwig" });
 ```
-
-### Blurring client-server boundaries
-
-Frameworks are adding their own blurring of the client-server boundary. Remix and Next.js both offer ways to colocate server code with client code and disambiguate them with special named exports or special directives e.g. `use-server`. Each piece of server logic is either spun up on a transient Lambda function, or a long-running server process. The client can just directly import and call the server function, and an RPC (remote procedure call) is coordinated in the background 🙀 There is a lot of magic behind the scenes.
-
-### Why Clover
-
-As frameworks like Next.js introduce their own first-party functionality to fetch and mutate data, I expect that the use-case for external libraries like TRPC, Zodios etc. will be diminished in the coming years. But occasionally there is still a need for exposing some data from your server via a well-documented public API. There isn't much support for this in the modern frameworks. So, Clover is a small library that aims to fill that gap.
