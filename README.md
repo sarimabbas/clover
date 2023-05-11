@@ -4,4 +4,4 @@ Server routes augmented with Zod and OpenAPI
 
 ## Docs
 
-https://clover.sarim.garden
+You can find the latest documentation on https://clover.sarim.garden
