@@ -2,6 +2,7 @@
   "name": "eslint-config-custom",
   "main": "index.js",
   "version": "1.0.0",
+  "private": true,
   "dependencies": {
     "eslint": "latest",
     "eslint-config-next": "latest",
