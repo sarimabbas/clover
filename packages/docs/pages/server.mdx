@@ -62,6 +62,79 @@ export { handler as GET };
 
 ## OpenAPI schema generation
 
+Clover uses `openapi3-ts` and `@anatine/zod-openapi` to generate OpenAPI schemas for your routes. Each route returns an `oas31.PathsObject`. You can stitch together all the schemas into a combined document like below:
+
+```ts
+// openapi.ts
+
+import { OpenAPIObject, OpenAPIPathsObject } from "@sarim.garden/clover";
+import { openAPIPathsObject as someRouteOpenAPISchema } from "./some/route";
+import { openAPIPathsObject as anotherRouteOpenAPISchema } from "./another/route";
+
+const pathsObject: OpenAPIPathsObject = [
+  someRouteOpenAPISchema,
+  anotherRouteOpenAPISchema,
+].reduce((acc, curr) => {
+  Object.keys(curr).forEach((k) => {
+    acc[k] = {
+      ...acc[k],
+      ...curr[k],
+    };
+  });
+  return acc;
+}, {});
+
+export const document: OpenAPIObject = {
+  info: {
+    title: "My API",
+    version: "1.0.0",
+  },
+  openapi: "3.0.0",
+  paths: pathsObject,
+};
+```
+
+### Swagger UI with Next.js
+
+Setting up Swagger would vary from framework to framework, but here is an illustrative example for Next.js:
+
+```ts
+// app/openapi.json/route.ts
+
+import { document } from "../../openapi";
+import { NextResponse } from "next/server";
+
+export const GET = () => {
+  return NextResponse.json(document);
+};
+```
+
+```ts
+// app/swagger/page.tsx
+
+"use client";
+
+import "swagger-ui-react/swagger-ui.css";
+import SwaggerUI from "swagger-ui-react";
+import { useEffect, useState } from "react";
+
+const SwaggerPage = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return <SwaggerUI url="/openapi.json" />;
+};
+
+export default SwaggerPage;
+```
+
 ## More about input parsing
 
 ### Query parameters
