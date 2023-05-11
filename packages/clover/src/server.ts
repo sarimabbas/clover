@@ -5,11 +5,9 @@ import { z } from "zod";
 import { commonReponses } from "./responses";
 import {
   HTTPMethod,
-  HumanReadable,
-  PathParamNames,
-  httpMethodSupportsRequestBody,
   getKeysFromPathPattern,
   getParamsFromPath,
+  httpMethodSupportsRequestBody,
 } from "./utils";
 
 export interface IMakeRequestHandlerProps<
@@ -72,7 +70,7 @@ export interface IMakeRequestHandlerProps<
   }) => Promise<Response>;
 }
 
-export interface IClientTypes<
+export interface IClientConfig<
   TInput extends z.AnyZodObject,
   TOutput extends z.AnyZodObject,
   TMethod extends HTTPMethod,
@@ -105,9 +103,9 @@ export interface IMakeRequestHandlerReturn<
   TPath extends string
 > {
   /**
-   * generated typescript types
+   * config object used to generate typescript types
    */
-  clientTypes: IClientTypes<TInput, TOutput, TMethod, TPath>;
+  clientConfig: IClientConfig<TInput, TOutput, TMethod, TPath>;
   /**
    * OpenAPI schema for this route
    */
@@ -261,7 +259,7 @@ export const makeRequestHandler = <
   };
 
   return {
-    clientTypes: {
+    clientConfig: {
       input: {} as any, // implementation does not matter, we just need the types
       output: props.output, // echo the zod schema
       method: props.method,

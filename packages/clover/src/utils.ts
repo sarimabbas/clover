@@ -1,5 +1,5 @@
-import { Key, Path, pathToRegexp, match } from "path-to-regexp";
 import { oas31 } from "openapi3-ts";
+import { Key, Path, match, pathToRegexp } from "path-to-regexp";
 
 export type OpenAPIObject = oas31.OpenAPIObject;
 export type OpenAPIPathsObject = oas31.PathsObject;
@@ -51,21 +51,3 @@ export type PathParamNames<
   : Path extends `${string}:${infer Name}`
   ? Name | Acc
   : Acc;
-
-/**
- * Utility function to make an OpenAPI schema so users don't have to install openapi3-ts
- * @param schema - OpenAPI schema overrides
- * @returns OpenAPI schema
- */
-export const makeOpenAPISchema = (
-  pathsObjects: oas31.PathsObject[],
-  initial?: oas31.OpenAPIObject
-): oas31.OpenAPIObject => {
-  const builder = oas31.OpenApiBuilder.create(initial);
-  pathsObjects.forEach((pathsObject) => {
-    Object.keys(pathsObject).forEach((k) => {
-      builder.addPath(k, pathsObject[k]);
-    });
-  });
-  return builder.getSpec();
-};
