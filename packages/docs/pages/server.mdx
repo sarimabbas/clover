@@ -1,6 +1,27 @@
 # Server
 
-Learn more about how Clover sets up the server route handler.
+## Example
+
+```ts
+const { handler, clientConfig, openAPIPathsObject } = makeRequestHandler({
+  input: z.object({
+    name: z.string(),
+  }),
+  output: z.object({
+    greeting: z.string(),
+  }),
+  run: async ({ request, input, sendOutput }) => {
+    const { name } = input;
+    return sendOutput({ greeting: `Hello, ${name}!` });
+  },
+  path: "/api/hello",
+  method: "GET",
+  description: "Greets the user",
+  authenticate: async (req) => {
+    return true;
+  },
+});
+```
 
 ## Props
 
@@ -11,5 +32,27 @@ Learn more about how Clover sets up the server route handler.
 | `run`           | `({ request, input, sendOutput }) => Promise<Response>` | The logic you want to run. You can use the validated input, or use the raw request. You can also send the response any way you like, but the `sendOutput` helper will help you conform to the output schema.                                    |
 | `path`          | `string`                                                | The relative path where your handler can be reached e.g. `/api/hello-world`                                                                                                                                                                     |
 | `method`        | `HTTPMethod`                                            | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. This helps Clover generate appropriate documentation, and also helps it figure out where to look for the input. For example, input will be parsed from query and path parameters for `GET` requests. |
-| `description`   | `string`                                                | Useful for generating OpenAPI documentation for this route.                                                                                                                                                                                     |
+| `description?`  | `string`                                                | Useful for generating OpenAPI documentation for this route.                                                                                                                                                                                     |
 | `authenticate?` | `(request: Request) => Promise<boolean>`                | If you supply this property, it will mark the route as protected with Bearer auth in the documentation. You can verify authentication status any way you like. Return `true` if the request is authenticated.                                   |
+
+## Return values
+
+| Name                 | Type                             | Description                                                                                               |
+| :------------------- | :------------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| `handler`            | `(request: Request) => Response` | An augmented server route handler.                                                                        |
+| `clientConfig`       | `IClientConfig`                  | A dummy variable used to extract types and pass them to the client. You can read more in the Client docs. |
+| `openAPIPathsObject` | `oas31.PathsObject`              | A generated OpenAPI schema for this route. You can read more about how to use this in the OpenAPI docs.   |
+
+## Usage with frameworks
+
+### Next.js
+
+Clover works with standard Web Request and Response APIs, which are only available in the new `app` directory in Next.js 13.4.
+
+```ts
+const { handler } = makeRequestHandler({
+  method: "GET",
+  // ...
+});
+export { handler as GET };
+```
