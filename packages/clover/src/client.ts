@@ -44,8 +44,6 @@ export const makeFetcher = (outerProps: IMakeFetcherProps) => {
     // create a ful url to the endpoint
     const url = new URL(substitutedPath, outerProps.baseUrl);
 
-    console.log({ requestTo: url.toString() });
-
     const resp = await fetch(
       // if the method supports a request body, send as JSON
       // otherwise, send as query params
