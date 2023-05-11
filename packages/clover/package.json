@@ -1,6 +1,6 @@
 {
   "name": "@sarim.garden/clover",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Server routes enhanced with Zod and OpenAPI schemas",
   "type": "module",
   "exports": {
