@@ -50,6 +50,8 @@ const { handler, clientConfig, openAPIPathsObject } = makeRequestHandler({
 Clover works with standard Web Request and Response APIs, which are only available in the new `app` directory in Next.js 13.4.
 
 ```ts
+// app/hello/route.ts
+
 const { handler } = makeRequestHandler({
   method: "GET",
   // ...
