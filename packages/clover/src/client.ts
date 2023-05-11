@@ -1,7 +1,7 @@
-import { z } from "zod";
-import type { IClientTypes } from "./server";
-import { HTTPMethod, httpMethodSupportsRequestBody } from "./utils";
 import { compile } from "path-to-regexp";
+import { z } from "zod";
+import type { IClientConfig } from "./server";
+import { HTTPMethod, httpMethodSupportsRequestBody } from "./utils";
 
 export interface IMakeFetcherProps {
   /**
@@ -26,7 +26,7 @@ export const makeFetcher = (outerProps: IMakeFetcherProps) => {
    * @returns the response from the server
    */
   const fetcher = async <
-    TConfig extends IClientTypes<
+    TConfig extends IClientConfig<
       z.AnyZodObject,
       z.AnyZodObject,
       HTTPMethod,

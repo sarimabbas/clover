@@ -1,9 +1,8 @@
-import { makeRequestHandler } from "./server";
-import { makeFetcher } from "./client";
 import { z } from "zod";
-import { makeOpenAPISchema } from "./utils";
+import { makeFetcher } from "./client";
+import { makeRequestHandler } from "./server";
 
-const { clientTypes, openAPISchema } = makeRequestHandler({
+const { clientConfig, openAPIPathsObject } = makeRequestHandler({
   input: z.object({
     id: z.string(),
     name: z.string(),
@@ -23,8 +22,9 @@ const getTest = makeFetcher({
   baseUrl: "http://localhost:3000",
 });
 
-const resp = getTest<typeof clientTypes>({
+const resp = getTest<typeof clientConfig>({
   input: {
+    id: "test",
     name: "test",
   },
   method: "GET",
@@ -33,5 +33,3 @@ const resp = getTest<typeof clientTypes>({
     id: z.string(),
   }),
 });
-
-const finalSchema = makeOpenAPISchema([openAPISchema]);
