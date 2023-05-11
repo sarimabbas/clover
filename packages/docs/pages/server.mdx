@@ -1,0 +1,15 @@
+# Server
+
+Learn more about how Clover sets up the server route handler.
+
+## Props
+
+| Name            | Type                                                    | Description                                                                                                                                                                                                                                     |
+| :-------------- | :------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `input`         | `AnyZodObject`                                          | A Zod schema describing the shape of your input. The input can be sent either as a query param, path param or JSON formatted request body.                                                                                                      |
+| `output`        | `AnyZodObject`                                          | A Zod schema describing the shape of your output. You can use the `sendOutput` helper inside your `run` function to ensure that you conform to the output.                                                                                      |
+| `run`           | `({ request, input, sendOutput }) => Promise<Response>` | The logic you want to run. You can use the validated input, or use the raw request. You can also send the response any way you like, but the `sendOutput` helper will help you conform to the output schema.                                    |
+| `path`          | `string`                                                | The relative path where your handler can be reached e.g. `/api/hello-world`                                                                                                                                                                     |
+| `method`        | `HTTPMethod`                                            | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. This helps Clover generate appropriate documentation, and also helps it figure out where to look for the input. For example, input will be parsed from query and path parameters for `GET` requests. |
+| `description`   | `string`                                                | Useful for generating OpenAPI documentation for this route.                                                                                                                                                                                     |
+| `authenticate?` | `(request: Request) => Promise<boolean>`                | If you supply this property, it will mark the route as protected in the documentation. You can verify authentication status any way you like. Return `true` if the request is authenticated.                                                    |
