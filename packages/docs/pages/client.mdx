@@ -58,3 +58,23 @@ const resp = fetcher<clientTypes>({
   path: "/api/hello",
 });
 ```
+
+## `makeFetcher`
+
+### Props
+
+| Name      | Type      | Description                                                          |
+| :-------- | :-------- | :------------------------------------------------------------------- |
+| `baseUrl` | `string`  | Where your API routes can be reached e.g. `https://api.example.com`. |
+| `headers` | `Headers` | Common headers sent with each request.                               |
+
+## `fetcher`
+
+### Props
+
+| Name         | Type                    | Description                                                                                                                           |
+| :----------- | :---------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
+| `input`      | `z.infer<AnyZodObject>` | Input variables as described by your server route input schema.                                                                       |
+| `path`       | `string`                | The relative path where your handler can be reached e.g. `/api/hello-world`. This will be constrained so there can only be one value. |
+| `method`     | `HTTPMethod`            | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. This will be constrained so there can only be one value.                                   |
+| `validator?` | `AnyZodObject`          | Parse the received response with a Zod schema. It must be the same as the server output schema or you will get a type error.          |
