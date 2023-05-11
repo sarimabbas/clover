@@ -103,19 +103,25 @@ Clover also provides an optional client fetcher. It's nothing fancy, it just wra
 ```ts
 // app/hello/route.ts
 
-export const { handler, clientTypes } = makeRequestHandler({
+const { handler, clientConfig } = makeRequestHandler({
   // ...same as above
 });
 
+export { handler as GET };
+export type clientTypes = typeof clientConfig;
+```
+
+```ts
 // client.ts
 
 import { makeFetcher } from "@sarim.garden/clover";
+import type { clientTypes } from "../hello/route";
 
 const fetcher = makeFetcher({
   baseUrl: "https://example.com",
 });
 
-const { greeting } = await fetcher<typeof clientTypes>({
+const { greeting } = await fetcher<clientTypes>({
   input: {
     name: "Sarim",
   },
