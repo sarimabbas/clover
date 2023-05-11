@@ -1,0 +1,152 @@
+# Server
+
+## Example
+
+```ts
+const { handler, clientConfig, openAPIPathsObject } = makeRequestHandler({
+  input: z.object({
+    name: z.string(),
+  }),
+  output: z.object({
+    greeting: z.string(),
+  }),
+  run: async ({ request, input, sendOutput }) => {
+    const { name } = input;
+    return sendOutput({ greeting: `Hello, ${name}!` });
+  },
+  path: "/api/hello",
+  method: "GET",
+  description: "Greets the user",
+  authenticate: async (req) => {
+    return true;
+  },
+});
+```
+
+## Props
+
+| Name            | Type                                                    | Description                                                                                                                                                                                                                                     |
+| :-------------- | :------------------------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `input`         | `AnyZodObject`                                          | A Zod schema describing the shape of your input. Clover will look for the input inside query params, path params or JSON formatted request body.                                                                                                |
+| `output`        | `AnyZodObject`                                          | A Zod schema describing the shape of your output. You can use the `sendOutput` helper inside your `run` function to ensure that you conform to the output.                                                                                      |
+| `run`           | `({ request, input, sendOutput }) => Promise<Response>` | The logic you want to run. You can use the validated input, or use the raw request. You can also send the response any way you like, but the `sendOutput` helper will help you conform to the output schema.                                    |
+| `path`          | `string`                                                | The relative path where your handler can be reached e.g. `/api/hello-world`                                                                                                                                                                     |
+| `method`        | `HTTPMethod`                                            | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. This helps Clover generate appropriate documentation, and also helps it figure out where to look for the input. For example, input will be parsed from query and path parameters for `GET` requests. |
+| `description?`  | `string`                                                | Useful for generating OpenAPI documentation for this route.                                                                                                                                                                                     |
+| `authenticate?` | `(request: Request) => Promise<boolean>`                | If you supply this property, it will mark the route as protected with Bearer auth in the documentation. You can verify authentication status any way you like. Return `true` if the request is authenticated.                                   |
+
+## Return values
+
+| Name                 | Type                             | Description                                                                                               |
+| :------------------- | :------------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| `handler`            | `(request: Request) => Response` | An augmented server route handler.                                                                        |
+| `clientConfig`       | `IClientConfig`                  | A dummy variable used to extract types and pass them to the client. You can read more in the Client docs. |
+| `openAPIPathsObject` | `oas31.PathsObject`              | A generated OpenAPI schema for this route. You can read more about how to use this in the OpenAPI docs.   |
+
+## OpenAPI
+
+Clover uses `openapi3-ts` and `@anatine/zod-openapi` to generate OpenAPI schemas for your routes. Each route returns an `oas31.PathsObject`. You can stitch together all the schemas into a combined document like below:
+
+```ts
+// openapi.ts
+
+import { OpenAPIObject, OpenAPIPathsObject } from "@sarim.garden/clover";
+import { openAPIPathsObject as someRouteOpenAPISchema } from "./some/route";
+import { openAPIPathsObject as anotherRouteOpenAPISchema } from "./another/route";
+
+const pathsObject: OpenAPIPathsObject = [
+  someRouteOpenAPISchema,
+  anotherRouteOpenAPISchema,
+].reduce((acc, curr) => {
+  Object.keys(curr).forEach((k) => {
+    acc[k] = {
+      ...acc[k],
+      ...curr[k],
+    };
+  });
+  return acc;
+}, {});
+
+export const document: OpenAPIObject = {
+  info: {
+    title: "My API",
+    version: "1.0.0",
+  },
+  openapi: "3.0.0",
+  paths: pathsObject,
+};
+```
+
+## Usage with frameworks
+
+### Next.js
+
+Clover works with standard Web Request and Response APIs, which are only available in the new `app` directory in Next.js 13.4.
+
+```ts
+// app/hello/route.ts
+
+const { handler } = makeRequestHandler({
+  method: "GET",
+  // ...
+});
+
+export { handler as GET };
+```
+
+#### Swagger UI
+
+Setting up Swagger would vary from framework to framework, but here is an illustrative example for Next.js:
+
+```ts
+// app/openapi.json/route.ts
+
+import { document } from "../../openapi";
+import { NextResponse } from "next/server";
+
+export const GET = () => {
+  return NextResponse.json(document);
+};
+```
+
+```ts
+// app/swagger/page.tsx
+
+"use client";
+
+import "swagger-ui-react/swagger-ui.css";
+import SwaggerUI from "swagger-ui-react";
+import { useEffect, useState } from "react";
+
+const SwaggerPage = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return <SwaggerUI url="/openapi.json" />;
+};
+
+export default SwaggerPage;
+```
+
+## Input parsing
+
+There are three supported input types: query parameters, path parameters and JSON request bodies. Depending on the HTTP method used, Clover will parse the input from the appropriate source.
+
+| Method   | Input source |
+| :------- | :----------- |
+| `GET`    | Path + query |
+| `DELETE` | Path + query |
+| `POST`   | Path + body  |
+| `PUT`    | Path + body  |
+| `PATCH`  | Path + body  |
+
+### Path parameters
+
+Clover uses [`path-to-regexp`](https://github.com/pillarjs/path-to-regexp) to parse path parameters e.g. if you have an input schema `z.object({ id: z.string() })` and path `/api/users/:id`, then Clover will parse the request URL to find the ID and use it to populate the input inside the `run()` function.

@@ -1,4 +1,6 @@
 {
   "index": "Getting started",
-  "eli5": "I don't get it"
+  "server": "Server",
+  "client": "Client",
+  "eli5": "ELI5"
 }

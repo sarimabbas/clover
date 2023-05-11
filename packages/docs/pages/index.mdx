@@ -52,17 +52,12 @@ yarn add @sarim.garden/clover
 
 Clover is a library that allows you to define your server routes using Zod and OpenAPI. You can use Clover for making your server routes type-safe and self-documenting, and as a lighterweight TRPC/Zodios replacement.
 
-You can use Clover with any framework/runtime that supports WinterCG style functions e.g. here's an example with Next.js App Router:
+You can use Clover with any framework/runtime that supports WinterCG style functions e.g.
 
 ```ts
-// example Next.js route handler
-// app/hello/route.ts
-
 const handler = (request: Request) => {
   return new Response("Hello World!");
 };
-
-export { handler as GET };
 ```
 
 ### Server
@@ -70,7 +65,8 @@ export { handler as GET };
 Here's what a handler augmented with Clover looks like:
 
 ```ts
-// app/hello/route.ts
+// server.ts
+
 import { makeRequestHandler } from "@sarim.garden/clover";
 import { z } from "zod";
 
@@ -90,60 +86,27 @@ export const { handler } = makeRequestHandler({
     });
   },
 });
-
-export { handler as GET };
 ```
 
-You can learn more about how to add authentication, about Clover's heuristics for query parameters, path parameters, request bodies etc. by reading the server guide in the sidebar 👈
+You can learn more about how to add authentication, about Clover's heuristics for query parameters, path parameters, request bodies etc. by reading the [server documentation](/server).
 
-### Client
-
-Clover also provides an optional client fetcher. It's nothing fancy, it just wraps the Fetch API and provides type safety.
-
-```ts
-// app/hello/route.ts
-
-const { handler, clientConfig } = makeRequestHandler({
-  // ...same as above
-});
-
-export { handler as GET };
-export type clientTypes = typeof clientConfig;
-```
-
-```ts
-// client.ts
-
-import { makeFetcher } from "@sarim.garden/clover";
-import type { clientTypes } from "../hello/route";
-
-const fetcher = makeFetcher({
-  baseUrl: "https://example.com",
-});
-
-const { greeting } = await fetcher<clientTypes>({
-  input: {
-    name: "Sarim",
-  },
-});
-```
-
-You can use the fetcher inside pure backend (server-to-server), backend-for-frontend (e.g. React Server Components), and frontend contexts (e.g. TanStack Query). You can read more about how the fetcher works in the sidebar 👈
-
-### OpenAPI
+#### OpenAPI
 
 You can generate OpenAPI documentation from your server routes.
 
 ```ts
-// app/hello/route.ts
+// server.ts
 
 export const { handler, openAPIPathsObject } = makeRequestHandler({
   // ...same as above
 });
+```
 
+```ts
 // openapi.ts
+
 import { OpenAPIObject, OpenAPIPathsObject } from "@sarim.garden/clover";
-import { openAPIPathsObject } from "../hello/route";
+import { openAPIPathsObject } from "./server";
 
 // it's ugly, I know, but this nicely combines
 // multiple openAPI definitions from different route handlers :)
@@ -170,7 +133,41 @@ export const document: OpenAPIObject = {
 };
 ```
 
-You can now serve this JSON document, and use it with Swagger UI or similar tools. You can learn more about how to do that by reading the full OpenAPI guide in the sidebar 👈
+You can now serve this document as JSON, and use it with Swagger UI or similar tools.
+
+### Client
+
+Clover also provides an optional client fetcher. It's nothing fancy, it just wraps the Fetch API and provides type safety.
+
+```ts
+// server.ts
+
+const { handler, clientConfig } = makeRequestHandler({
+  // ...same as above
+});
+
+export { handler as GET };
+export type clientTypes = typeof clientConfig;
+```
+
+```ts
+// client.ts
+
+import { makeFetcher } from "@sarim.garden/clover";
+import type { clientTypes } from "./server";
+
+const fetcher = makeFetcher({
+  baseUrl: "https://example.com",
+});
+
+const { greeting } = await fetcher<clientTypes>({
+  input: {
+    name: "Sarim",
+  },
+});
+```
+
+You can read more about how the fetcher works in the [client documentation](/client).
 
 ## Credits
 

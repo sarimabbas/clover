@@ -1,0 +1,80 @@
+# Client
+
+Since Clover routes are OpenAPI compliant, you can generate a client against the spec using any library of your choice e.g. [Orval](https://orval.dev/overview) or [oazapfts](https://github.com/oazapfts/oazapfts).
+
+If you'd rather not add a client generation step, Clover also provides a lightweight fetcher that can be used to make requests to the API.
+
+```ts
+// server.ts
+
+import { makeRequestHandler } from "@sarim.garden/clover";
+
+const { handler, clientConfig, openAPIPathsObject } = makeRequestHandler({
+  input: z.object({
+    name: z.string(),
+  }),
+  output: z.object({
+    greeting: z.string(),
+  }),
+  run: async ({ request, input, sendOutput }) => {
+    const { name } = input;
+    return sendOutput({ greeting: `Hello, ${name}!` });
+  },
+  path: "/api/hello",
+  method: "GET",
+  description: "Greets the user",
+  authenticate: async (req) => {
+    return true;
+  },
+});
+
+export type clientTypes = typeof clientConfig;
+```
+
+```ts
+// client.ts
+
+import { makeFetcher } from "@sarim.garden/clover";
+
+export const fetcher = makeFetcher({
+  baseUrl: "https://api.example.com",
+  headers: {},
+});
+```
+
+The fetcher is simply a typesafe wrapper around fetch that manages query params, path params, and request/response bodies. You can use the fetcher anywhere to make network requests to your API routes. The fetcher is generic; once you pass in the client types, you will get intellisense on all the fields.
+
+```ts
+// some/other/file.ts
+
+import { fetcher } from "../../client";
+import type { clientTypes } from "../../server";
+
+const resp = fetcher<clientTypes>({
+  input: {
+    name: "Sarim",
+  },
+  method: "GET",
+  path: "/api/hello",
+});
+```
+
+## `makeFetcher`
+
+### Props
+
+| Name      | Type      | Description                                                          |
+| :-------- | :-------- | :------------------------------------------------------------------- |
+| `baseUrl` | `string`  | Where your API routes can be reached e.g. `https://api.example.com`. |
+| `headers` | `Headers` | Common headers sent with each request.                               |
+
+## `fetcher`
+
+### Props
+
+| Name         | Type                    | Description                                                                                                                           |
+| :----------- | :---------------------- | :------------------------------------------------------------------------------------------------------------------------------------ |
+| `input`      | `z.infer<AnyZodObject>` | Input variables as described by your server route input schema.                                                                       |
+| `path`       | `string`                | The relative path where your handler can be reached e.g. `/api/hello-world`. This will be constrained so there can only be one value. |
+| `method`     | `HTTPMethod`            | `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. This will be constrained so there can only be one value.                                   |
+| `validator?` | `AnyZodObject`          | Parse the received response with a Zod schema. It must be the same as the server output schema or you will get a type error.          |

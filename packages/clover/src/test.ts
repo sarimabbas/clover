@@ -2,19 +2,22 @@ import { z } from "zod";
 import { makeFetcher } from "./client";
 import { makeRequestHandler } from "./server";
 
-const { clientConfig, openAPIPathsObject } = makeRequestHandler({
+const { handler, clientConfig, openAPIPathsObject } = makeRequestHandler({
   input: z.object({
-    id: z.string(),
     name: z.string(),
   }),
   output: z.object({
-    id: z.string(),
+    greeting: z.string(),
   }),
-  method: "GET",
-  path: "/test/:id",
   run: async ({ request, input, sendOutput }) => {
-    const { id } = input;
-    return sendOutput({ id });
+    const { name } = input;
+    return sendOutput({ greeting: `Hello, ${name}!` });
+  },
+  path: "/api/hello",
+  method: "GET",
+  description: "Greets the user",
+  authenticate: async (req) => {
+    return true;
   },
 });
 
@@ -24,12 +27,11 @@ const getTest = makeFetcher({
 
 const resp = getTest<typeof clientConfig>({
   input: {
-    id: "test",
     name: "test",
   },
   method: "GET",
-  path: "/test/:id",
+  path: "/api/hello",
   validator: z.object({
-    id: z.string(),
+    greeting: z.string(),
   }),
 });
