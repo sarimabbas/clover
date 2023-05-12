@@ -6,7 +6,7 @@ Server routes augmented with Zod and OpenAPI
 
 ## Installation
 
-```
+```bash
 pnpm add @sarim.garden/clover
 ```
 
