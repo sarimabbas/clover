@@ -1,5 +1,11 @@
 # @sarim.garden/clover
 
+## 2.1.1
+
+### Patch Changes
+
+- 734797d: Test patch of auto release
+
 ## 2.1.0
 
 ### Minor Changes
