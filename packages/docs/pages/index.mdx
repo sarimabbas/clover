@@ -28,21 +28,21 @@ Server routes augmented with Zod and OpenAPI
   <Tab>
 
 ```bash
-pnpm i @sarim.garden/clover
+pnpm i @protocols-fyi/clover
 ```
 
   </Tab>
   <Tab>
 
 ```bash
-npm i @sarim.garden/clover
+npm i @protocols-fyi/clover
 ```
 
   </Tab>
   <Tab>
 
 ```bash
-yarn add @sarim.garden/clover
+yarn add @protocols-fyi/clover
 ```
 
   </Tab>
@@ -67,7 +67,7 @@ Here's what a handler augmented with Clover looks like:
 ```ts
 // server.ts
 
-import { makeRequestHandler } from "@sarim.garden/clover";
+import { makeRequestHandler } from "@protocols-fyi/clover";
 import { z } from "zod";
 
 export const { handler } = makeRequestHandler({
@@ -105,7 +105,7 @@ export const { handler, openAPIPathsObject } = makeRequestHandler({
 ```ts
 // openapi.ts
 
-import { OpenAPIObject, OpenAPIPathsObject } from "@sarim.garden/clover";
+import { OpenAPIObject, OpenAPIPathsObject } from "@protocols-fyi/clover";
 import { openAPIPathsObject } from "./server";
 
 // it's ugly, I know, but this nicely combines
@@ -153,7 +153,7 @@ export type clientTypes = typeof clientConfig;
 ```ts
 // client.ts
 
-import { makeFetcher } from "@sarim.garden/clover";
+import { makeFetcher } from "@protocols-fyi/clover";
 import type { clientTypes } from "./server";
 
 const fetcher = makeFetcher({

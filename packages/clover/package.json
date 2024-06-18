@@ -1,5 +1,5 @@
 {
-  "name": "@sarim.garden/clover",
+  "name": "@protocols-fyi/clover",
   "version": "2.0.1",
   "description": "Server routes enhanced with Zod and OpenAPI schemas",
   "type": "module",

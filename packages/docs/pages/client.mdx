@@ -7,7 +7,7 @@ If you'd rather not add a client generation step, Clover also provides a lightwe
 ```ts
 // server.ts
 
-import { makeRequestHandler } from "@sarim.garden/clover";
+import { makeRequestHandler } from "@protocols-fyi/clover";
 
 const { handler, clientConfig, openAPIPathsObject } = makeRequestHandler({
   input: z.object({
@@ -34,7 +34,7 @@ export type clientTypes = typeof clientConfig;
 ```ts
 // client.ts
 
-import { makeFetcher } from "@sarim.garden/clover";
+import { makeFetcher } from "@protocols-fyi/clover";
 
 export const fetcher = makeFetcher({
   baseUrl: "https://api.example.com",
