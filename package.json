@@ -8,12 +8,11 @@
     "release": "turbo run build lint && changeset version && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.1",
     "eslint": "^7.32.0",
     "prettier": "^2.5.1",
-    "@changesets/cli": "^2.26.1",
-    "turbo": "latest"
+    "turbo": "^2.0.4"
   },
-  "packageManager": "pnpm@7.15.0",
-  "name": "cardboard",
-  "dependencies": {}
+  "packageManager": "pnpm@9.4.0",
+  "name": "cardboard"
 }
