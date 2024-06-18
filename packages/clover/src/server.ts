@@ -37,6 +37,10 @@ export interface IMakeRequestHandlerProps<
    */
   description?: string;
   /**
+   * optional tags
+   */
+  tags?: string[];
+  /**
    * the presence of this property will make the route require bearer authentication
    * @param request - the request, do whatever you want with it
    * @returns - if false, the request will be rejected
@@ -189,6 +193,7 @@ export const makeRequestHandler = <
       // sarim: i don't think we need this
       // 405: commonReponses[405].openAPISchema,
     },
+    tags: props.tags,
   };
 
   const openAPIPathItem: oas31.PathItemObject = {
