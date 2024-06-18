@@ -1,5 +1,11 @@
 # @sarim.garden/clover
 
+## 2.1.0
+
+### Minor Changes
+
+- f9aeedc: Add support for OpenAPI tags with makeRequestHandler
+
 ## 2.0.1
 
 ### Patch Changes
