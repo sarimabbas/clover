@@ -16,13 +16,6 @@
       "require": "./dist/index.cjs"
     }
   },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/*"
-      ]
-    }
-  },
   "publishConfig": {
     "access": "public"
   },
