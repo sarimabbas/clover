@@ -3,9 +3,18 @@
   "version": "2.1.1",
   "description": "Server routes enhanced with Zod and OpenAPI schemas",
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.js"
+    "import": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "require": "./dist/index.cjs"
+    }
   },
   "typesVersions": {
     "*": {
@@ -28,15 +37,15 @@
   "dependencies": {
     "@anatine/zod-openapi": "^1.12.1",
     "lodash.merge": "^4.6.2",
+    "openapi3-ts": "^4.1.2",
     "path-to-regexp": "^6.2.1",
-    "zod": "^3.21.4",
-    "openapi3-ts": "^4.1.2"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/lodash.merge": "^4.6.7",
     "eslint": "^8.40.0",
     "eslint-config-custom": "workspace:*",
-    "tsup": "^6.7.0",
+    "tsup": "^7.2.0",
     "typescript": "^5.0.4"
   }
 }
