@@ -1,5 +1,11 @@
 # @sarim.garden/clover
 
+## 2.1.2
+
+### Patch Changes
+
+- 96a2469: Update clover to build for both esm and cjs
+
 ## 2.1.1
 
 ### Patch Changes
