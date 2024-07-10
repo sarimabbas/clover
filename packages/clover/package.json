@@ -1,6 +1,6 @@
 {
   "name": "@protocols-fyi/clover",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Server routes enhanced with Zod and OpenAPI schemas",
   "type": "module",
   "main": "./dist/index.cjs",

@@ -1,5 +1,11 @@
 # @sarim.garden/clover
 
+## 2.1.3
+
+### Patch Changes
+
+- 7d4abd0: Remove typesVersions from package.json as this conflicts with the exports
+
 ## 2.1.2
 
 ### Patch Changes
