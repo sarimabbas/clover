@@ -1,5 +1,11 @@
 # @sarim.garden/clover
 
+## 2.1.4
+
+### Patch Changes
+
+- 2ca3e60: Fix issue where path parameters were not marked as required
+
 ## 2.1.3
 
 ### Patch Changes
