@@ -152,6 +152,7 @@ export const makeRequestHandler = <
     ...getKeysFromPathPattern(props.path).map((key) => ({
       name: String(key.name),
       in: "path" as oas31.ParameterLocation,
+      required: true,
       schema: {
         type: "string" as oas31.SchemaObjectType,
       },
