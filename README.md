@@ -4,6 +4,8 @@ Server routes augmented with Zod and OpenAPI
 
 ![](./assets/cover.png)
 
++[![Test](https://github.com/protocols-fyi/clover/actions/workflows/test.yml/badge.svg)](https://github.com/protocols-fyi/clover/actions/workflows/test.yml)
+
 ## Installation
 
 ```bash
