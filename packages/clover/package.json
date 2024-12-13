@@ -22,7 +22,11 @@
   "scripts": {
     "build": "tsup --config ./tsup.config.ts",
     "dev": "pnpm run build --watch",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "keywords": [],
   "author": "",
@@ -36,9 +40,12 @@
   },
   "devDependencies": {
     "@types/lodash.merge": "^4.6.7",
+    "@vitest/coverage-v8": "^1.2.1",
+    "@vitest/ui": "^2.1.8",
     "eslint": "^8.40.0",
     "eslint-config-custom": "workspace:*",
     "tsup": "^7.2.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vitest": "^1.2.1"
   }
 }
