@@ -1,4 +1,8 @@
 module.exports = {
   root: true,
-  extends: ["custom"],
+  extends: ["eslint:recommended", "prettier"],
+  parserOptions: {
+    ecmaVersion: "latest",
+    sourceType: "module"
+  }
 };
