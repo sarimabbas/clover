@@ -1,5 +1,11 @@
 # @sarim.garden/clover
 
+## 2.2.1
+
+### Patch Changes
+
+- f2b1f67: Remove custom eslint config for clover project
+
 ## 2.2.0
 
 ### Minor Changes
