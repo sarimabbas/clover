@@ -65,11 +65,23 @@ export interface IMakeRequestHandlerProps<
     input: z.infer<TInput>;
     /**
      * @param output - the output data
+     * @param options Request options
      * @returns a helper to send the output
      */
     sendOutput: (
       output: z.infer<TOutput>,
       options?: Partial<ResponseInit>
+    ) => Promise<Response>;
+    /**
+     * @param status - the status code
+     * @param message - the error message
+     * @param data - any additional data
+     * @returns a helper to send the output
+     */
+    sendError: (
+      status: number,
+      message: string,
+      data?: Record<string, any>
     ) => Promise<Response>;
   }) => Promise<Response>;
 }
@@ -260,9 +272,25 @@ export const makeRequestHandler = <
       );
     };
 
+    const sendError = async (
+      status: number,
+      message: string,
+      data?: Record<string, any>
+    ) => {
+      return new Response(
+        JSON.stringify({ message, data }),
+        {
+          status,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
     // run the user's code
     try {
-      return await props.run({ request: requestForRun, input, sendOutput });
+      return await props.run({ request: requestForRun, input, sendOutput, sendError });
     } catch (error) {
       return commonReponses[500].response(error);
     }

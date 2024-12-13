@@ -160,7 +160,7 @@ describe('makeRequestHandler', () => {
     expect(response.headers.get('X-Custom-Header')).toBe('test');
   });
 
-  it('should return a 500 if the handler throws an error', async () => {
+  it('should return a 500 if the handler throws an uncaught error', async () => {
     const { handler } = makeRequestHandler({
       input: z.object({ name: z.string() }),
       output: z.object({ greeting: z.string() }),
@@ -177,7 +177,6 @@ describe('makeRequestHandler', () => {
 
     expect(response.status).toBe(500);
   });
-
   it('should return a 401 if the handler expects a user to be authenticated', async () => {
     const { handler } = makeRequestHandler({
       input: z.object({ name: z.string() }),
@@ -196,6 +195,25 @@ describe('makeRequestHandler', () => {
     );
 
     expect(response.status).toBe(401);
+  });
+
+  it('should allow an explicit error response', async () => {
+    const { handler } = makeRequestHandler({
+      input: z.object({ name: z.string() }),
+      output: z.object({ greeting: z.string() }),
+      method: 'GET',
+      path: '/api/hello',
+      
+      run: async ({ sendError }) => {
+        return sendError(404, 'Not Found');
+      }
+    });
+
+    const response = await handler(
+      new Request('http://test.com/api/hello?name=test')
+    );
+
+    expect(response.status).toBe(404);
   });
 });
 
