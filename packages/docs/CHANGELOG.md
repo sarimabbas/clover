@@ -1,5 +1,11 @@
 # @sarim.garden/clover-docs
 
+## 1.2.1
+
+### Patch Changes
+
+- 232dbde: Add new sendError helper in the handler that allows an error response to be easily retruned.
+
 ## 1.2.0
 
 ### Minor Changes
