@@ -261,7 +261,12 @@ export const makeRequestHandler = <
     };
 
     // run the user's code
-    return props.run({ request: requestForRun, input, sendOutput });
+    try {
+      return await props.run({ request: requestForRun, input, sendOutput });
+    } catch (error) {
+      console.error(error);
+      return commonReponses[500].response(error);
+    }
   };
 
   return {

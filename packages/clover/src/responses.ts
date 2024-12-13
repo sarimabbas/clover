@@ -52,6 +52,12 @@ export const commonReponses = {
     },
     response: () => new Response(null, { status: 401 }),
   },
+  500: {
+    openAPISchema: {
+      description: "Internal server error",
+    },
+    response: (error: any) => new Response(JSON.stringify({ error: error.message }), { status: 500 }),
+  },
 } satisfies Record<
   string,
   {
