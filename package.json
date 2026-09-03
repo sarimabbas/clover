@@ -2,18 +2,19 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
+    "deploy:cloudflare": "pnpm --filter @sarim.garden/clover-docs build && wrangler deploy",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "release": "turbo run build lint && changeset version && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.1",
     "eslint": "^7.32.0",
     "prettier": "^2.5.1",
-    "@changesets/cli": "^2.26.1",
-    "turbo": "latest"
+    "turbo": "latest",
+    "wrangler": "4.129.0"
   },
   "packageManager": "pnpm@7.15.0",
-  "name": "cardboard",
-  "dependencies": {}
+  "name": "cardboard"
 }

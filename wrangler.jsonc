@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "clover-git",
+  "compatibility_date": "2026-09-03",
+  "assets": {
+    "directory": "./packages/docs/out"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
