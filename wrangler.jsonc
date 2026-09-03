@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "clover-git",
+  "account_id": "f7df7fafe5b4e9d4e0446100575c0bf4",
   "compatibility_date": "2026-09-03",
   "assets": {
     "directory": "./packages/docs/out"
